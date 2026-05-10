@@ -2,8 +2,8 @@
 from fastapi import APIRouter,Depends,HTTPException,status
 from sqlalchemy.orm import Session
 from typing import List
-import crud,schemas,database
-from logger import logger
+from app import crud,schemas,database
+from app.logger import logger
 
 router = APIRouter(prefix="/customers", tags=['Customers'])
 

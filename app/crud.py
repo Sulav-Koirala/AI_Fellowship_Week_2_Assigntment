@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session,joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func
-import models, schemas
-from logger import logger
+from app import models, schemas
+from app.logger import logger
 
 #task 2
 def get_customer(db: Session, customer_id: int):
