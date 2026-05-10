@@ -3,3 +3,4 @@ venv/
 __pycache__/
 Assignment_2.pdf
 app.log
+seed.sql
