@@ -1,17 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional,List
-
-class OrderSchema(BaseModel):
-    order_number: int
-    status: str
-    class Config:
-        from_attributes = True
-
-class PaymentSchema(BaseModel):
-    check_number: str
-    amount: float
-    class Config:
-        from_attributes = True
+from app.schemas.order_schemas import OrderSchema
+from app.schemas.payment_schemas import PaymentSchema
 
 class CustomerBase(BaseModel):
     customer_name : str

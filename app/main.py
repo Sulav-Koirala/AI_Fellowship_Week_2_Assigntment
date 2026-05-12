@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app import router,task3_router
+from app.routers import count_routers,customer_routers
 
 app = FastAPI()
-app.include_router(router.router)
-app.include_router(task3_router.router)
+app.include_router(customer_routers.router)
+app.include_router(count_routers.router)
