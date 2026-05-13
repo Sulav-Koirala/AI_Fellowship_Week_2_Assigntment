@@ -1,4 +1,6 @@
 from sqlalchemy.orm import Session,joinedload
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 from app.models import Customer
 from app.schemas import customer_schemas
 from app.logger import logger
@@ -13,9 +15,16 @@ def get_customers(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Customer).options(joinedload(Customer.orders), joinedload(Customer.payments)).offset(skip).limit(limit).all()
 
 def create_customer(db: Session, customer: customer_schemas.CustomerCreate):
-    db_customer = Customer(**customer.model_dump())
-    db.add(db_customer)
-    db.commit()
-    db.refresh(db_customer)
-    logger.info(f"Created new customer with ID: {db_customer.customer_number}")
-    return db_customer
+    try:
+        db_customer = Customer(**customer.model_dump())
+        db.add(db_customer)
+        db.commit()
+        db.refresh(db_customer)
+        logger.info(f"Created new customer with ID: {db_customer.customer_number}")
+        return db_customer
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=400, 
+            detail="ForeignKey Error"
+        )

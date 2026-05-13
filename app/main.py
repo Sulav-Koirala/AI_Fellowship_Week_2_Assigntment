@@ -14,3 +14,7 @@ app.include_router(payment_routers.router)
 app.include_router(product_routers.router)
 app.include_router(productline_routers.router)
 app.include_router(orderdetail_routers.router)
+
+@app.get("/")
+def main():
+    return {"message": "API is fully functional"}
