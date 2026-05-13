@@ -31,12 +31,19 @@ def create_payment(db: Session, data: PaymentCreate):
         )
 
 def update_payment(db: Session, customer_number: int, check_number: str, data: PaymentUpdate):
-    db_payment = get_payment(db, customer_number, check_number)
-    for key, value in data.model_dump(exclude_unset=True).items():
-        setattr(db_payment, key, value)
-    db.commit()
-    db.refresh(db_payment)
-    return db_payment
+    try:
+        db_payment = get_payment(db, customer_number, check_number)
+        for key, value in data.model_dump(exclude_unset=True).items():
+            setattr(db_payment, key, value)
+        db.commit()
+        db.refresh(db_payment)
+        return db_payment
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=400, 
+            detail="ForeignKey Error"
+        )
 
 def delete_payment(db: Session, customer_number: int, check_number: str):
     db_payment = get_payment(db, customer_number, check_number)

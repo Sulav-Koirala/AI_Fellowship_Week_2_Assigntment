@@ -28,12 +28,19 @@ def create_order(db: Session, data: OrderCreate):
         )
 
 def update_order(db: Session, order_number: int, data: OrderUpdate):
-    db_order = get_order(db, order_number)
-    for key, value in data.model_dump(exclude_unset=True).items():
-        setattr(db_order, key, value)
-    db.commit()
-    db.refresh(db_order)
-    return db_order
+    try:
+        db_order = get_order(db, order_number)
+        for key, value in data.model_dump(exclude_unset=True).items():
+            setattr(db_order, key, value)
+        db.commit()
+        db.refresh(db_order)
+        return db_order
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=400, 
+            detail="ForeignKey Error"
+        )
 
 def delete_order(db: Session, order_number: int):
     db_order = get_order(db, order_number)

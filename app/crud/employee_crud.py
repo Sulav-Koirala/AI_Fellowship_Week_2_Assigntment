@@ -24,17 +24,24 @@ def create_employee(db: Session, data: EmployeeCreate):
         db.rollback()
         raise HTTPException(
             status_code=400, 
-            detail="ForeignKey Error: Ensure the Office Code and Manager ID exist."
+            detail="ForeignKey Error"
         )
 
 def update_employee(db: Session, employee_number: int, data: EmployeeUpdate):
-    db_employee = get_employee(db, employee_number)
-    for key, value in data.model_dump(exclude_unset=True).items():
-        setattr(db_employee, key, value)
-    db.commit()
-    db.refresh(db_employee)
-    return db_employee
-
+    try:
+        db_employee = get_employee(db, employee_number)
+        for key, value in data.model_dump(exclude_unset=True).items():
+            setattr(db_employee, key, value)
+        db.commit()
+        db.refresh(db_employee)
+        return db_employee
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=400, 
+            detail="ForeignKey Error"
+        )
+    
 def delete_employee(db: Session, employee_number: int):
     db_employee = get_employee(db, employee_number)
     db.delete(db_employee)

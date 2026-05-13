@@ -28,13 +28,20 @@ def create_product(db: Session, data: ProductCreate):
         )
 
 def update_product(db: Session, product_code: str, data: ProductUpdate):
-    db_product = get_product(db, product_code)
-    update_data = data.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(db_product, key, value)
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+    try:
+        db_product = get_product(db, product_code)
+        update_data = data.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_product, key, value)
+        db.commit()
+        db.refresh(db_product)
+        return db_product
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=400, 
+            detail="ForeignKey Error"
+        )
 
 def delete_product(db: Session, product_code: str):
     db_product = get_product(db, product_code)

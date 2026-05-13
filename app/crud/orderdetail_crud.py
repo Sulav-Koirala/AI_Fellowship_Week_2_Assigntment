@@ -31,12 +31,19 @@ def create_order_detail(db: Session, data: OrderDetailCreate):
         )
 
 def update_order_detail(db: Session, order_number: int, product_code: str, data: OrderDetailUpdate):
-    db_detail = get_order_detail(db, order_number, product_code)
-    for key, value in data.model_dump(exclude_unset=True).items():
-        setattr(db_detail, key, value)
-    db.commit()
-    db.refresh(db_detail)
-    return db_detail
+    try:
+        db_detail = get_order_detail(db, order_number, product_code)
+        for key, value in data.model_dump(exclude_unset=True).items():
+            setattr(db_detail, key, value)
+        db.commit()
+        db.refresh(db_detail)
+        return db_detail
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=400, 
+            detail="ForeignKey Error"
+        )
 
 def delete_order_detail(db: Session, order_number: int, product_code: str):
     db_detail = get_order_detail(db, order_number, product_code)
